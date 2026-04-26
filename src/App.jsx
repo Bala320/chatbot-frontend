@@ -6,7 +6,8 @@ import ChatInput from './components/ChatInput';
 import ChatModal from './components/ChatModel';
 import ProductDetailPage from './components/ProductDetailPage';
 import Products from './components/Products';
-import { initializeChatSession, sendChatMessage } from './services/chatbot';
+import { getChatHistory, initializeChatSession, sendChatMessage } from './services/chatbot';
+import { getCart, addToCart, clearCart } from './services/CartService';
 
 const SESSION_STORAGE_KEY = 'catalog-session-id';
 
@@ -87,17 +88,9 @@ function App() {
   const [route, setRoute] = useState(() => getRouteFromHash());
   const [sessionId] = useState(() => getSessionId());
   const [cartItems, setCartItems] = useState(() => []);
-
-  useEffect(() => {
-    const savedCart = window.sessionStorage.getItem(`cart:${sessionId}`);
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
-  }, [sessionId]);
-
-  useEffect(() => {
-    window.sessionStorage.setItem(`cart:${sessionId}`, JSON.stringify(cartItems));
-  }, [cartItems, sessionId]);
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [cartToasts, setCartToasts] = useState([]);
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -119,9 +112,34 @@ function App() {
 
     async function prepareSession() {
       try {
-        await initializeChatSession();
-      } catch {
-        // Keep the UI usable even if the chat backend is temporarily unavailable.
+        let history;
+
+        try {
+          history = await getChatHistory();
+        } catch (err) {
+          if (err.status === 401) {
+            await initializeChatSession();
+            history = await getChatHistory();
+          } else {
+            throw err;
+          }
+        }
+
+        if (active) {
+          const formatted = history
+          .filter((msg) => msg.role !== 'system')
+          .map((msg, index) => ({
+            id: `history-${index}`,
+            role: msg.role,
+            content: msg.content,
+            products: [],          // 🔥 important
+            showProducts: false    // 🔥 important
+          }));
+
+        setMessages(formatted);
+        }
+      } catch (err) {
+        console.error('Failed to load chat history', err);
       } finally {
         if (active) {
           setChatReady(true);
@@ -136,6 +154,64 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!cartToasts.length) {
+      return undefined;
+    }
+
+    const timers = cartToasts.map((toast) =>
+      window.setTimeout(() => {
+        setCartToasts((currentToasts) =>
+          currentToasts.filter((entry) => entry.id !== toast.id),
+        );
+      }, 2600),
+    );
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [cartToasts]);
+
+  // Load effect
+  useEffect(() => {
+    if (sessionId) {
+      const savedCart = window.sessionStorage.getItem(`cart:${sessionId}`);
+      console.log("LOADING CART:", savedCart);
+
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      }
+
+      setIsCartLoaded(true); // ✅ important
+    }
+  }, [sessionId]);
+
+  // Save effect
+  useEffect(() => {
+    if (sessionId && isCartLoaded) {
+      console.log("SAVING CART:", cartItems);
+
+      window.sessionStorage.setItem(
+        `cart:${sessionId}`,
+        JSON.stringify(cartItems)
+      );
+    }
+  }, [cartItems, sessionId, isCartLoaded]);
+
+  // Load the cart
+  useEffect(() => {
+    async function loadCart() {
+      try {
+        const data = await getCart();
+        setCartItems(data);
+      } catch (err) {
+        console.error("Failed to load cart", err);
+      }
+    }
+
+    loadCart();
+  }, []);
+
   const cartCount = useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity, 0),
     [cartItems],
@@ -146,20 +222,24 @@ function App() {
       ? Data.find((product) => product.id === route.productId) || null
       : null;
 
-  const handleAddToCart = (product) => {
-    setCartItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id);
+  const handleAddToCart = async (product) => {
+    await addToCart(product.id);
 
-      if (existingItem) {
-        return currentItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
+    const data = await getCart();
 
-      return [...currentItems, { ...product, quantity: 1 }];
+    const enriched = data.map(item => {
+      const p = Data.find(d => d.id === item.id);
+      return { ...p, quantity: item.quantity };
     });
+
+    setCartItems(enriched);
+    setCartToasts((currentToasts) => [
+      ...currentToasts,
+      {
+        id: `${product.id}-${Date.now()}`,
+        message: `${product.title} added to cart`,
+      },
+    ]);
   };
 
   const handleBuyNow = (product) => {
@@ -180,6 +260,25 @@ function App() {
         item.id === productId ? { ...item, quantity: nextQuantity } : item,
       ),
     );
+  };
+
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+      setCartItems([]);
+    } catch (err) {
+      console.error("Failed to clear cart", err);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (!cartItems.length) {
+      return;
+    }
+
+    const purchasedNames = cartItems.map((item) => item.title).join(', ');
+    setCheckoutMessage(`${purchasedNames} purchased successfully.`);
+    setCartItems([]);
   };
 
   const handleSend = async (nextMessage) => {
@@ -205,7 +304,9 @@ function App() {
         {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: reply,
+          content: reply.content,
+          products: reply.products,
+          showProducts: reply.showProducts
         },
       ]);
     } catch {
@@ -260,6 +361,8 @@ function App() {
         <CartPage
           cartItems={cartItems}
           formatCurrency={formatCurrency}
+          onCheckout={handleCheckout}
+          onClearCart={handleClearCart}
           onContinueShopping={() => navigateTo('/')}
           onUpdateQuantity={handleUpdateQuantity}
           sessionId={sessionId}
@@ -274,7 +377,39 @@ function App() {
           messages={messages}
           onClose={() => setChatOpen(false)}
           onSend={handleSend}
+          onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
         />
+      ) : null}
+
+      {checkoutMessage ? (
+        <div className="checkout-popup-backdrop" role="dialog" aria-modal="true">
+          <div className="checkout-popup">
+            <p className="eyebrow">Order placed</p>
+            <h2>Purchase successful</h2>
+            <p>{checkoutMessage}</p>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => setCheckoutMessage('')}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {cartToasts.length ? (
+        <div className="cart-toast-stack" aria-live="polite" aria-atomic="false">
+          {cartToasts.map((toast) => (
+            <div key={toast.id} className="cart-toast" role="status">
+              <span className="cart-toast__icon" aria-hidden="true">
+                ✓
+              </span>
+              <p>{toast.message}</p>
+            </div>
+          ))}
+        </div>
       ) : null}
     </>
   );

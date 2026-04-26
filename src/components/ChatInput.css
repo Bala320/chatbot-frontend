@@ -7,6 +7,16 @@
   justify-content: center;
   pointer-events: none;
   z-index: 20;
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+.chat-launcher.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .chat-launcher__shell {
@@ -21,6 +31,10 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
   backdrop-filter: blur(18px);
+  pointer-events: none;
+}
+
+.chat-launcher.is-visible .chat-launcher__shell {
   pointer-events: auto;
 }
 
@@ -74,5 +88,26 @@
   .chat-launcher__spark,
   .chat-launcher__send {
     justify-self: start;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-launcher {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .chat-launcher__shell {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 22px;
+  }
+
+  .chat-launcher__spark,
+  .chat-launcher__send {
+    width: 100%;
+    justify-self: stretch;
+    text-align: center;
   }
 }

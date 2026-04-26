@@ -1,8 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './ChatInput.css';
 
 export default function ChatInput({ onSend }) {
   const [message, setMessage] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsVisible(window.scrollY > 260);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const handleSend = () => {
     const trimmed = message.trim();
@@ -21,7 +35,7 @@ export default function ChatInput({ onSend }) {
   };
 
   return (
-    <div className="chat-launcher">
+    <div className={`chat-launcher${isVisible ? ' is-visible' : ''}`} aria-hidden={!isVisible}>
       <div className="chat-launcher__shell">
         <span className="chat-launcher__spark">Ask</span>
         <input

@@ -1,6 +1,8 @@
 export default function CartPage({
   cartItems,
   formatCurrency,
+  onCheckout,
+  onClearCart,
   onContinueShopping,
   onUpdateQuantity,
   sessionId,
@@ -20,9 +22,19 @@ export default function CartPage({
             Session ID: <code>{sessionId}</code>
           </p>
         </div>
-        <button type="button" className="secondary-button" onClick={onContinueShopping}>
-          Continue shopping
-        </button>
+        <div className="cart-header__actions">
+          <button type="button" className="secondary-button" onClick={onContinueShopping}>
+            Continue shopping
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onClearCart}
+            disabled={!cartItems.length}
+          >
+            Clear cart
+          </button>
+        </div>
       </section>
 
       <section className="cart-layout">
@@ -78,7 +90,12 @@ export default function CartPage({
               ? 'This is the placeholder cart page. Session-driven persistence is already scaffolded.'
               : 'Once items are added, this panel is ready for tax, delivery, and checkout logic.'}
           </p>
-          <button type="button" className="primary-button" disabled={!cartItems.length}>
+          <button
+            type="button"
+            className="primary-button"
+            disabled={!cartItems.length}
+            onClick={onCheckout}
+          >
             Proceed to checkout
           </button>
         </aside>

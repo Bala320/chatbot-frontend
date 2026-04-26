@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
+function navigateTo(path) {
+  window.location.hash = path;
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export default function ChatModal({
+  onAddToCart,
+  onBuyNow,
   chatReady,
   isReplying,
   messages,
@@ -61,30 +75,55 @@ export default function ChatModal({
                 key={entry.id}
                 className={`chat-bubble chat-bubble--${entry.role}`}
               >
-                
                 <span className="eyebrow">
                   {entry.role === 'assistant' ? 'Assistant' : 'You'}
                 </span>
                 <div dangerouslySetInnerHTML={{ __html: entry.content }} />
-                {console.log("ENTRY:", entry)}
-                {entry.products?.length > 0 && (
-                  <div className="product-list">
-                    {entry.products.map(p => (
-                      <div key={p.id} className="product-card">
-                        <h4>{p.title}</h4>
-                        <p>₹{p.newPrice}</p>
-
-                        <button onClick={() => addToCart(p.id)}>
-                          Add to Cart
-                        </button>
-
-                        <button onClick={() => buyNow(p.id)}>
-                          Buy Now
+                {entry.products?.length > 0 ? (
+                  <div className="chat-product-list">
+                    {entry.products.map((product) => (
+                      <div key={product.id} className="chat-product-card">
+                        <p className="eyebrow">
+                          {product.brand} - {product.category}
+                        </p>
+                        <h4>{product.title}</h4>
+                        <p className="chat-product-price">
+                          {formatCurrency(product.newPrice)}
+                        </p>
+                        <div className="chat-product-actions">
+                          <button
+                            type="button"
+                            className="primary-button"
+                            onClick={() => onAddToCart(product)}
+                          >
+                            Add to cart
+                          </button>
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() => {
+                              onBuyNow(product);
+                              onClose();
+                              navigateTo('/cart');
+                            }}
+                          >
+                            Buy now
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          className="chat-product-link"
+                          onClick={() => {
+                            onClose();
+                            navigateTo(`/product/${product.id}`);
+                          }}
+                        >
+                          View laptop details
                         </button>
                       </div>
                     ))}
                   </div>
-                )}
+                ) : null}
               </div>
             ))}
 
