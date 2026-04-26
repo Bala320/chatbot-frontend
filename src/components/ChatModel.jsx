@@ -61,10 +61,30 @@ export default function ChatModal({
                 key={entry.id}
                 className={`chat-bubble chat-bubble--${entry.role}`}
               >
+                
                 <span className="eyebrow">
                   {entry.role === 'assistant' ? 'Assistant' : 'You'}
                 </span>
-                <p>{entry.content}</p>
+                <div dangerouslySetInnerHTML={{ __html: entry.content }} />
+                {console.log("ENTRY:", entry)}
+                {entry.products?.length > 0 && (
+                  <div className="product-list">
+                    {entry.products.map(p => (
+                      <div key={p.id} className="product-card">
+                        <h4>{p.title}</h4>
+                        <p>₹{p.newPrice}</p>
+
+                        <button onClick={() => addToCart(p.id)}>
+                          Add to Cart
+                        </button>
+
+                        <button onClick={() => buyNow(p.id)}>
+                          Buy Now
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
 
