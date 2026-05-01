@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/euclid-circular-b');
+
 :root {
   --bg: #f4efe6;
   --bg-deep: #efe3d3;
@@ -74,7 +76,7 @@ h1,
 h2,
 h3,
 strong {
-  font-family: var(--heading);
+  font-family: 'Euclid Circular B', sans-serif;
   font-weight: 700;
   color: var(--text-h);
 }
