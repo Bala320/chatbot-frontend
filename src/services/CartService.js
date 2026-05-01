@@ -10,6 +10,7 @@ export async function request(path, options = {}) {
 export async function addToCart(productId) {
   const res = await request('/cart/add', {
     method: 'POST',
+    credentials: "include",
     headers: {
       'Content-Type': 'application/json'
     },

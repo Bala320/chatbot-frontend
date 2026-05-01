@@ -45,6 +45,7 @@ export async function initializeChatSession() {
   sessionPromise = (async () => {
     const response = await request('/session', {
       method: 'POST',
+      credentials: "include"
     });
 
     if (!response.ok) {
@@ -66,6 +67,7 @@ export async function refreshChatSession() {
   refreshPromise = (async () => {
     const response = await request('/refresh', {
       method: 'POST',
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -85,6 +87,7 @@ export async function refreshChatSession() {
 export async function getChatHistory() {
   let response = await request('/chat/history', {
     method: 'POST',
+    credentials: "include",
   });
 
   if (response.status === 401) {
@@ -97,6 +100,7 @@ export async function getChatHistory() {
 
     response = await request('/chat/history', {
       method: 'POST',
+      credentials: "include",
     });
   }
 
@@ -112,6 +116,7 @@ export async function getChatHistory() {
 async function sendRemoteChatMessage(message) {
   const response = await request('/chat', {
     method: 'POST',
+    credentials: "include",
     headers: {
       'Content-Type': 'application/json',
     },
@@ -127,6 +132,7 @@ async function sendRemoteChatMessage(message) {
 
     const retryResponse = await request('/chat', {
       method: 'POST',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
