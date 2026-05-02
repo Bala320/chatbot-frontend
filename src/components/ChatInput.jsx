@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './ChatInput.css';
 
-export default function ChatInput({ onSend }) {
+export default function ChatInput({ onOpen, onSend }) {
   const [message, setMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
@@ -40,14 +40,19 @@ export default function ChatInput({ onSend }) {
         <span className="chat-launcher__spark">Ask</span>
         <input
           type="text"
-          placeholder="Ask about sizing, material, or delivery"
+          placeholder="Ask about specs, price, or delivery"
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <button type="button" className="chat-launcher__send" onClick={handleSend}>
-          Send
-        </button>
+        <div className="chat-launcher__actions">
+          <button type="button" className="chat-launcher__open" onClick={onOpen}>
+            Open chat
+          </button>
+          <button type="button" className="chat-launcher__send" onClick={handleSend}>
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

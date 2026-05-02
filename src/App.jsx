@@ -73,6 +73,14 @@ function CartButton({ count, onClick }) {
   );
 }
 
+function AssistantButton({ onClick }) {
+  return (
+    <button type="button" className="assistant-button" onClick={onClick} aria-label="Open chat assistant">
+      Assistant
+    </button>
+  );
+}
+
 function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -334,6 +342,7 @@ function App() {
           <button type="button" className="topbar-link" onClick={() => navigateTo('/')}>
             Home
           </button>
+          <AssistantButton onClick={() => setChatOpen(true)} />
           <CartButton count={cartCount} onClick={() => navigateTo('/cart')} />
         </div>
       </header>
@@ -365,11 +374,10 @@ function App() {
           onClearCart={handleClearCart}
           onContinueShopping={() => navigateTo('/')}
           onUpdateQuantity={handleUpdateQuantity}
-          sessionId={sessionId}
         />
       ) : null}
 
-      <ChatInput onSend={handleSend} />
+      <ChatInput onOpen={() => setChatOpen(true)} onSend={handleSend} />
       {chatOpen ? (
         <ChatModal
           chatReady={chatReady}

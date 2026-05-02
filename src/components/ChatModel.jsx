@@ -57,18 +57,12 @@ export default function ChatModal({
             <p className="eyebrow">Store assistant</p>
             <h2>Active chatbot workspace</h2>
           </div>
-          <button type="button" className="chat-modal__close" onClick={onClose}>
-            Close
+          <button type="button" className="chat-modal__close" onClick={onClose} aria-label="Close chat">
+            ×
           </button>
         </div>
 
         <div className="chat-modal__body">
-          <p className="muted">
-            {chatReady
-              ? 'The assistant is connected to your backend session flow and ready to send live messages.'
-              : 'Preparing the chat session with your backend. You can still open the workspace while it connects.'}
-          </p>
-
           <div className="chat-thread" ref={conversationRef}>
             {messages.map((entry) => (
               <div
@@ -137,11 +131,11 @@ export default function ChatModal({
 
           <div className="chat-composer">
             <textarea
-              rows="3"
+              rows="1"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about pricing, product comparisons, or delivery"
+              placeholder="Ask about specs or price"
             />
             <button type="button" className="primary-button" onClick={handleSubmit}>
               Send message

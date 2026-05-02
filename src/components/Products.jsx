@@ -322,8 +322,8 @@ export default function Products({
           <div className="sidebar-promo">
             <p className="panel-label">Buying note</p>
             <p className="muted">
-              Keep `Data.js` growing with more brands, categories, ratings, and offer
-              data. The sidebar is now ready for extra filters later too.
+              Use this left rail to narrow down laptops by brand, use case, and
+              value before you compare the final shortlist side by side.
             </p>
           </div>
         </aside>

@@ -5,7 +5,6 @@ export default function CartPage({
   onClearCart,
   onContinueShopping,
   onUpdateQuantity,
-  sessionId,
 }) {
   const subtotal = cartItems.reduce(
     (total, item) => total + item.newPrice * item.quantity,
@@ -16,11 +15,8 @@ export default function CartPage({
     <main className="cart-shell">
       <section className="cart-header">
         <div>
-          <p className="eyebrow">Cart session</p>
+          <p className="eyebrow">Shopping cart</p>
           <h1>Your cart</h1>
-          <p className="muted">
-            Session ID: <code>{sessionId}</code>
-          </p>
         </div>
         <div className="cart-header__actions">
           <button type="button" className="secondary-button" onClick={onContinueShopping}>

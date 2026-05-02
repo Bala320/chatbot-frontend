@@ -15,6 +15,7 @@
 
 .brand-mark,
 .topbar-link,
+.assistant-button,
 .cart-button,
 .product-title-button,
 .quantity-controls button {
@@ -43,6 +44,7 @@
   font-weight: 600;
 }
 
+.assistant-button,
 .cart-button {
   display: inline-flex;
   gap: 10px;
@@ -467,6 +469,21 @@
   border: 1px solid rgba(15, 23, 42, 0.18);
 }
 
+.chat-modal__close {
+  min-height: 36px;
+  width: 36px;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 1.55rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
 .empty-state {
   padding: 40px 24px;
   border-radius: 28px;
@@ -719,17 +736,20 @@
 }
 
 .chat-modal__header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: start;
+  position: relative;
+  display: block;
+  padding-right: 48px;
+}
+
+.chat-modal__header h2 {
+  margin-top: 2px;
 }
 
 .chat-modal__body {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: 14px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 12px;
   min-height: 0;
   overflow: hidden;
 }
@@ -826,23 +846,45 @@
 
 .chat-composer {
   display: grid;
-  gap: 10px;
-  padding-top: 12px;
+  gap: 8px;
+  padding-top: 10px;
   border-top: 1px solid rgba(148, 163, 184, 0.18);
-  background: linear-gradient(180deg, rgba(244, 247, 251, 0), rgba(244, 247, 251, 0.88) 18%, rgba(244, 247, 251, 0.96));
 }
 
 .chat-composer textarea {
   width: 100%;
-  resize: vertical;
-  min-height: 88px;
-  max-height: 160px;
-  border-radius: 22px;
+  resize: none;
+  min-height: 44px;
+  max-height: 96px;
+  border-radius: 18px;
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(255, 255, 255, 0.88);
-  padding: 16px 18px;
+  padding: 10px 14px;
   color: var(--text-h);
   font: inherit;
+  line-height: 1.45;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
+}
+
+.chat-composer textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-composer textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-composer textarea::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.7);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.chat-composer textarea::placeholder {
+  color: rgba(91, 82, 72, 0.62);
 }
 
 .eyebrow {
@@ -940,8 +982,7 @@
   }
 
   .results-header,
-  .cart-header,
-  .chat-modal__header {
+  .cart-header {
     flex-direction: column;
     align-items: start;
   }
@@ -968,6 +1009,7 @@
     justify-content: space-between;
   }
 
+  .assistant-button,
   .cart-button {
     width: 100%;
     justify-content: center;
@@ -991,8 +1033,7 @@
   .hero-deals__list,
   .catalog-layout,
   .sidebar-group,
-  .results-header,
-  .chat-modal__header {
+  .results-header {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: start;
@@ -1105,6 +1146,10 @@
     padding: 16px;
   }
 
+  .chat-modal__header h2 {
+    margin-top: 0;
+  }
+
   .cart-toast-stack {
     left: 12px;
     right: 12px;
@@ -1153,12 +1198,20 @@
   }
 
   .topbar-link,
+  .assistant-button,
   .cart-button,
   .primary-button,
   .secondary-button,
   .chat-modal__close {
     width: 100%;
     justify-content: center;
+  }
+
+  .chat-modal__close {
+    width: 34px;
+    min-height: 34px;
+    justify-content: initial;
+    font-size: 1.4rem;
   }
 
   .hero-copy,
@@ -1233,6 +1286,10 @@
     margin-top: 10px;
   }
 
+  .chat-modal__header {
+    padding-right: 42px;
+  }
+
   .chat-thread {
     gap: 12px;
     padding-right: 6px;
@@ -1240,7 +1297,7 @@
   }
 
   .chat-composer textarea {
-    min-height: 76px;
-    max-height: 132px;
+    min-height: 44px;
+    max-height: 88px;
   }
 }
